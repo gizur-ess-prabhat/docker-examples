@@ -5,24 +5,12 @@
 FROM     base
 MAINTAINER Prabhat Khera "prabhat.khera@gmail.com"
 
-RUN apt-get -y update
+RUN apt-get update && apt-get install -y apache2 && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN dpkg-divert --local --rename --add /sbin/initctl
-RUN ln -s /bin/true /sbin/initctl
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_LOG_DIR /var/log/apache2
 
-RUN apt-get install -y inotify-tools apache2 php5 php5-common php5-mysql php5-curl bzip2 wget vim openssl ssl-cert
+EXPOSE 80
 
-env APACHE_RUN_USER www-data
-env APACHE_RUN_GROUP www-data
-env APACHE_PID_FILE /var/run/apache2.pid
-env APACHE_RUN_DIR /var/run/apache2
-env APACHE_LOCK_DIR /var/lock/apache2
-env APACHE_LOG_DIR /var/log/apache2
-env LANG C
-
-RUN a2enmod rewrite
-
-EXPOSE :80
-
-CMD ["/usr/sbin/apache2ctl", "-D",  "FOREGROUND"]
-CMD ["apache2", "-D", "FOREGROUND"]
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
